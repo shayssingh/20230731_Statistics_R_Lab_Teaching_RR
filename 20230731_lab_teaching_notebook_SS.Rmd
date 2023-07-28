@@ -135,15 +135,6 @@ Comparing difference in means between two groups
 
 On average, do virginica irises have longer petal lengths than versicolor and setosa irises?
 
-#Chi Squared Test for Independence
-  null hypothesis:iris species and petal length are independent
-  alternative hypothesis: iris species and petal length are not independent
-  
-```{r}
-chisq.test(iris$Species, iris$Petal.Length)
-```
-  conclusion: we reject the null hypothesis and conclude that specis and petal length are NOT independent variables in this dataset
-
 Pull values as vectors
 
 ```{r}
