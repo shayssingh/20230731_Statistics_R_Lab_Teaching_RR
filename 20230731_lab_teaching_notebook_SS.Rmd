@@ -36,8 +36,7 @@ iris %>% reframe(unique(Species))
 
 How many observations of each iris species were recorded in this dataset?
 ```{r}
-iris %>% group_by(Species) %>% summarise(count = n())
-iris %>% group_by(Species) %>% summarise(count = n())
+count <- iris %>% group_by(Species) %>% summarise(count = n())
 ```
 
 Visualizations for Categorical Variables:
@@ -48,6 +47,11 @@ Barplot
 barplot1 <- iris %>% ggplot() + geom_bar(mapping = aes(x = Species, fill = "red"))
 
 barplot2 <- barplot2 <- iris %>% ggplot() + geom_bar(mapping = aes(x = Species, fill = Species)) + scale_fill_manual(values = c("pink", "orange", "purple")) + labs(x = "Species of Iris", y = "Count", title = "Iris Species") + theme_minimal()
+```
+Pie Chart
+
+```{r}
+ggplot(count, aes(x="", y=count, fill=Species)) + geom_bar(stat="identity", width=1) + coord_polar("y", start=0) + theme_void()
 ```
 
 Qualitative Variables: Petal length and width, sepal length and width
