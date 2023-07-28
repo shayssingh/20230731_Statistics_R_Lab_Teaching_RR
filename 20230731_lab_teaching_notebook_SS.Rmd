@@ -1,0 +1,201 @@
+---
+title: "20230731_Lab_Teaching_SS"
+output: html_document
+date: "2023-07-28"
+---
+
+# Lab Teaching - Iris
+
+Install and load the necessary packages
+
+```{r}
+install.packages(tidyverse)
+library(tidyverse)
+install.packages(ggpubr)
+library(ggpubr)
+```
+
+Load Iris dataset
+
+```{r}
+data("iris")
+view(iris)
+```
+
+# Descriptive Statistics - Dataset Characterization 
+
+How many variables do we have? What type of variables do we have?
+
+Categorical Variable: Species
+
+How many iris species were represented in this dataset?
+
+```{r}
+iris %>% reframe(unique(Species))
+```
+
+How many observations of each iris species were recorded in this dataset?
+```{r}
+iris %>% group_by(Species) %>% summarise(count = n())
+iris %>% group_by(Species) %>% summarise(count = n())
+```
+
+Visualizations for Categorical Variables:
+
+Barplot
+
+```{r}
+barplot1 <- iris %>% ggplot() + geom_bar(mapping = aes(x = Species, fill = "red"))
+
+barplot2 <- barplot2 <- iris %>% ggplot() + geom_bar(mapping = aes(x = Species, fill = Species)) + scale_fill_manual(values = c("pink", "orange", "purple")) + labs(x = "Species of Iris", y = "Count", title = "Iris Species") + theme_minimal()
+```
+
+Qualitative Variables: Petal length and width, sepal length and width
+
+# Distributions of Variables
+
+What are the distributions of these variables?
+
+Histograms
+
+```{r}
+petal_length_distribution <- iris %>% ggplot() + geom_histogram(mapping = aes(x = Petal.Length))
+petal_width_distribution <- iris %>% ggplot() + geom_histogram(mapping = aes(x = Petal.Width))
+sepal_length_distribution <- iris %>% ggplot() + geom_histogram(mapping = aes(x = Sepal.Length))
+sepal_width_distribution <- iris %>% ggplot() + geom_histogram(mapping = aes(x = Sepal.Width))
+```
+
+QQ plots
+
+```{r}
+petal_length_qq <- iris %>% ggplot() + stat_qq(aes(sample = Petal.Length)) + stat_qq_line(aes(sample = Petal.Length))
+petal_width_qq <- iris %>% ggplot() + stat_qq(aes(sample = Petal.Width)) + stat_qq_line(aes(sample = Petal.Width))
+sepal_length_qq <- iris %>% ggplot() + stat_qq(aes(sample = Sepal.Length)) + stat_qq_line(aes(sample = Sepal.Length))
+sepal_width_qq <- iris %>% ggplot() + stat_qq(aes(sample = Sepal.Width)) + stat_qq_line(aes(sample = Sepal.Width))
+```
+
+Shapiro-Wilk Normality Test
+
+```{r}
+iris %>% pull(Petal.Length) %>% shapiro.test()
+iris %>% pull(Petal.Width) %>% shapiro.test()
+iris %>% pull(Sepal.Length) %>% shapiro.test()
+iris %>% pull(Sepal.Width) %>% shapiro.test()
+```
+
+# Calculating Central Tendency and Spread
+
+Normal Distribution:
+
+Mean
+
+```{r}
+mean(iris$Sepal.Width)
+```
+
+Standard Deviation
+
+```{r}
+sd(iris$Sepal.Width)
+```
+
+By Species
+
+On average, which species has the widest sepal width? 
+```{r}
+iris %>% group_by(Species) %>% summarise(mean_sepal_width = mean(Sepal.Width), sd_sepal_width = sd(Sepal.Width)) %>% arrange(desc(mean_sepal_width))
+```
+
+Non-Normal Distribution:
+
+Five-Point Summary
+
+```{r}
+iris %>% group_by(Species) %>% summarise(min_petal_length = min(Petal.Length), q1_petal_length = quantile(Petal.Length, probs = 0.25), med_petal_length = median(Petal.Length), q3_petal_length = quantile(Petal.Length, probs = 0.75), max_petal_length = max(Petal.Length))
+
+iris %>% summarise(min_petal_length = min(Petal.Length), q1_petal_length = quantile(Petal.Length, probs = 0.25), med_petal_length = median(Petal.Length), q3_petal_length = quantile(Petal.Length, probs = 0.75), max_petal_length = max(Petal.Length))
+```
+
+Visualizations:
+
+Boxplots
+
+On average, which species has the longest petal length? 
+```{r}
+iris %>% ggplot() + geom_boxplot(mapping = aes(x = Petal.Length, y = Species, fill = Species)) + theme_bw()
+```
+
+# Statistical Testing
+
+Comparing difference in means between two groups
+
+On average, do virginica irises have longer petal lengths than versicolor and setosa irises?
+
+#Chi Squared Test for Independence
+  null hypothesis:iris species and petal length are independent
+  alternative hypothesis: iris species and petal length are not independent
+  
+```{r}
+chisq.test(iris$Species, iris$Petal.Length)
+```
+  conclusion: we reject the null hypothesis and conclude that specis and petal length are NOT independent variables in this dataset
+
+Pull values as vectors
+
+```{r}
+setosa_petal_length <- iris %>% filter(Species == "setosa") %>% pull(Petal.Length) 
+
+versicolor_petal_length <- iris %>% filter(Species == "versicolor") %>% pull(Petal.Length)
+
+virginica_petal_length <- iris %>% filter(Species == "virginica") %>% pull(Petal.Length) 
+```
+
+Wilcoxon Rank Sums Test (Non-Parametric)
+
+```{r}
+wilcox.test(setosa_petal_length, virginica_petal_length, alternative = "two.sided")
+
+wilcox.test(setosa_petal_length, versicolor_petal_length, alternative = "two.sided")
+
+wilcox.test(virginica_petal_length, versicolor_petal_length, alternative = "two.sided")
+```
+
+Welch's Two Sample T Test (Parametric)
+
+```{r}
+t.test(setosa_petal_length, virginica_petal_length, alternative = "two.sided")
+```
+
+Is there a correlation between petal length and petal width?
+
+Spearman's Correlation (Non-Parametric)
+
+```{r}
+cor.test(iris$Petal.Length, iris$Petal.Width, method = "spearman")
+```
+
+Pearson's Correlation (Parametric)
+
+```{r}
+cor.test(iris$Petal.Length, iris$Petal.Width, method = "pearson")
+```
+
+Visualization
+
+Basic Scatter Plot
+
+```{r}
+iris %>% ggplot() + geom_point(mapping = aes(x = Petal.Length, y = Petal.Width, color = Species)) + labs(x = "Petal Length", y = "Petal Width") + theme_bw()
+
+iris %>% ggplot() + geom_point(mapping = aes(x = Petal.Length, y = Petal.Width, color = Species, shape = Species)) + labs(x = "Petal Length", y = "Petal Width") + theme_bw() + scale_color_manual(values = c("pink", "orange", "purple"))
+```
+
+Spearman's Correlation Plot
+
+```{r}
+ggscatter(iris, x = "Petal.Length", y = "Petal.Width", color = "green", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "spearman", xlab = "Petal Length", ylab = "Petal Width", title = "Spearman's Correlation Plot of Iris Petal Length vs. Petal Width") + geom_smooth(method = lm, color = "black")
+
+ggscatter(iris, x = "Petal.Length", y = "Petal.Width", color = "Species", conf.int = TRUE, cor.coef = TRUE, cor.method = "spearman", xlab = "Petal Length", ylab = "Petal Width", title = "Spearman's Correlation Plot of Iris Petal Length vs. Petal Width") + geom_smooth(method = lm, color = "black") + theme(legend.position = "right")
+
+ggscatter(iris, x = "Petal.Length", y = "Petal.Width", color = "Species", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "spearman", xlab = "Petal Length", ylab = "Petal Width", title = "Spearman's Correlation Plot of Iris Petal Length vs. Petal Width") + geom_smooth(method = lm, color = "black") + theme(legend.position = "right")
+```
