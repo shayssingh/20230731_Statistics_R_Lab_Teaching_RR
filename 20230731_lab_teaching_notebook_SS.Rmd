@@ -127,6 +127,8 @@ Boxplots
 On average, which species has the longest petal length? 
 ```{r}
 iris %>% ggplot() + geom_boxplot(mapping = aes(x = Petal.Length, y = Species, fill = Species)) + theme_bw()
+
+iris %>% ggplot() + geom_boxplot(mapping = aes(x = Petal.Length, y = Species, fill = Species), outlier.shape = NA) + theme_bw() + scale_fill_manual(values = c("pink", "orange", "purple"))
 ```
 
 # Statistical Testing
